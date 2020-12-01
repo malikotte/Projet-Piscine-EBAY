@@ -3,23 +3,21 @@
     $bdd= new PDO('mysql:host=localhost;dbname=login','root','');
     if (isset($_POST['forminscription']))
     {
-        $username = htmlspecialchars($_POST['username']); // htmlspecialchars  - Convertit les caractères spéciaux en entités HTML
-        $mail = htmlspecialchars($_POST['email']);
-        $genre = $_POST['genre'];
-        if(!empty($_POST['username']) AND !empty($_POST['email']) AND !empty($_POST['password']) AND !empty($_POST['cpassword']))
+        $nom = htmlspecialchars($_POST['nom']); // htmlspecialchars  - Convertit les caractères spéciaux en entités HTML
+        $prenom = htmlspecialchars($_POST['prenom']);
+        $email = htmlspecialchars($_POST['email']);
+        if(!empty($_POST['nom']) AND !empty($_POST['prenom']) AND !empty($_POST['email']) AND !empty($_POST['password']) AND !empty($_POST['cpassword']))
         {
-            $requsername = $bdd->prepare("SELECT * FROM users WHERE username = ?"); // Vérification du pseudo Si déjà présent dans la BDD
-            $requsername->execute(array($username));
-            $usernameexiste= $requsername->rowCount();
-            $pseudolength = strlen($username);
-            if($usernameexiste ==0)
-            {
-                if ($pseudolength <= 12)
+            
+            $nomlength = strlen($nom);
+            $prenomlength = strlen($prenom);
+            
+                if ($nomlength <= 20 && $prenomlength <= 20)
                 {
-                    if (filter_var($mail,FILTER_VALIDATE_EMAIL))
+                    if (filter_var($email,FILTER_VALIDATE_EMAIL))
                     {
-                        $reqmail = $bdd->prepare("SELECT * FROM users WHERE email = ?"); // Vérification de l'adresse mail Si déjà présente dans la BDD
-                        $reqmail->execute(array($mail));
+                        $reqmail = $bdd->prepare("SELECT * FROM acheteurs WHERE email = ?"); // Vérification de l'adresse mail Si déjà présente dans la BDD
+                        $reqmail->execute(array($email));
                         $mailexiste= $reqmail->rowCount();
                         if($mailexiste ==0)
                         {
@@ -28,8 +26,13 @@
                             {
                                 $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hashage du mot de passe
                                 $cpassword = password_hash($_POST['cpassword'], PASSWORD_DEFAULT);//
-                                $sql = $bdd->prepare("INSERT INTO users(username,email,genre,password) VALUES ('$username','$mail','$genre','$password')");
-                                $sql->execute(array($username,$mail,$genre,$password));
+                                $sql = $bdd->prepare("INSERT INTO acheteurs(email,nom,prenom,password) VALUES ('$email','$nom','$prenom','$password')");
+                                $sql->execute(array($email,$nom,$prenom,$password));
+                                $req = $bdd->prepare('SELECT * FROM acheteurs WHERE nom=:nom');
+                                $req -> execute(array('nom'=> $_POST['nom']));
+                                $sql = $req->fetch();
+                                $_SESSION['id_acheteur'] = $sql['id_acheteur'];
+                                header("Location:etape2.php?id=".$_SESSION['id_acheteur']);
                                 $info = '<div class="alert alert-success">Votre inscription a bien été enregistrée !</div>';
                                 echo $info;
                             }
@@ -56,12 +59,6 @@
                     $info = '<div class="alert alert-danger">Votre pseudo ne doit pas dépasser 12 caractères !</div>';
                     echo $info;
                 }
-            }
-            else
-                {
-                    $info = '<div class="alert alert-danger">Le pseudo est déjà utilisé !</div>';
-                    echo $info;
-                }
         }
         else
         {
@@ -73,14 +70,14 @@
 
     if (isset($_POST['formconnection']))
     {
-        $usernameconnect= htmlspecialchars($_POST['username']);
+        $email= htmlspecialchars($_POST['email']);
         $passwordconnect = $_POST['password'];
         //Nous vérifions que l'utilisateur a bien envoyé les informations demandées 
-        if(!empty($usernameconnect) AND !empty($passwordconnect))
+        if(!empty($email) AND !empty($passwordconnect))
         {
             //Nous allons demander le hash pour cet utilisateur à notre base de données :
-            $query = $bdd->prepare('SELECT password FROM users WHERE username = :username');
-            $query->bindParam(':username', $usernameconnect);
+            $query = $bdd->prepare('SELECT password FROM acheteurs WHERE email = :email');
+            $query->bindParam(':email', $email);
             $query->execute();
             $result = $query->fetch();
             $hash = $result[0];
@@ -90,14 +87,27 @@
 
             if($correctPassword)
             {
-                $req = $bdd->prepare('SELECT * FROM users WHERE username=:username');
-                $req -> execute(array('username'=> $_POST['username']));
+                $req = $bdd->prepare('SELECT * FROM acheteurs WHERE email=:email');
+                $req -> execute(array('email'=> $_POST['email']));
                 $sql = $req->fetch();
-                $_SESSION['id'] = $sql['id'];
-                $_SESSION['username'] = $sql['username'];
+                $_SESSION['id_vendeur'] = $sql['id_vendeur'];
+                $_SESSION['id_acheteur'] = $sql['id_acheteur'];
                 $_SESSION['email'] = $sql['email'];
-                header("Location:profil.php?id=".$_SESSION['id']);
-                die();
+                header("Location:produits.php");
+                /*$r = $bdd->prepare('SELECT statut FROM vendeurs  WHERE username=? AND email=?');
+                $r->execute(array($usernameconnect, $emailconnect));
+
+                if ($d = $r->fetch()) {
+                    if ('Acheteur' == $d['statut']){
+                        header("Location: acheteur.php".$_SESSION['id']);
+                    }
+                    else if ('Vendeur' == $d['statut']){
+                        header("Location: vendeur.php".$_SESSION['id']);
+                    }
+                    else{
+                        header("Location: admin.php?id=".$_SESSION['id']);
+                    }
+                }*/
             }
             else
             {
@@ -127,6 +137,7 @@
     <!-- Mon CSS -->
     <link type="text/css" href="./css/styles.css" rel="stylesheet">
     <link type="text/css" href="./css/animate.css" rel="stylesheet">
+
     <!-- Core -->
     <script src="./vendor/jquery/jquery.min.js"></script>
     <script src="./vendor/popper/popper.min.js"></script>
@@ -139,19 +150,21 @@
     <script src="./vendor/smooth-scroll/smooth-scroll.polyfills.min.js"></script>
     <!-- pixel JS -->
     <script src="./js/pixel.js"></script>
+     <script src="./js/pixel.js"></script>
+
 </head>
 <body>
-	<div class="content">
-		<div class="loginform mr-auto ml-auto animated fadeIn">
+    <div class="content toggle-custom-snow">
+        <div class="loginform mr-auto ml-auto animated fadeIn">
             <img class="fit-picture" src="img/logo.png" style="width: 55px;height: 75px;position: relative;left:45%;" alt="Grapefruit slice atop a pile of other slices">
                 <form method="POST" action="">
-                    <h1 class="display-4 typewriter">Evo | Ece Paris</h1>
+                    <h1 class="display-4 typewriter">Ebay ECE</h1>
                     <div class="form-group">
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-address-book"></i></span>
+                                <span class="input-group-text"><i class="fas fa-at"></i></span>
                             </div>
-                            <input type="text" class="form-control" name="username" placeholder="Nom d'utilisateur" required>
+                            <input type="text" class="form-control" name="email" placeholder="Adresse mail" required>
                         </div>
                     </div>
                     <div class="form-group">
@@ -166,24 +179,12 @@
                 </form>
                 <div class="texte  mt-2 text-center">
                     <small class="mdp"> Mot de passe oublié ?</small>
-                    <a data-toggle="modal" data-target="#modal-default"><small>· S'inscrire sur Evo</small></a>
+                    <a data-toggle="modal" data-target="#modal-default"><small>· S'inscrire sur Evo</small></a><br><br><br>
+                    <a href="vendeur/index.php"><button class="btn mr-2 mb-2  btn-pill btn-dark" type="button">Accès vendeur</button></a>
                 </div>
-            <div class="pro mt-6">
-                <div class="progress-wrapper">
-                    <div class="progress-info">
-                        <div class="progress-label">
-                            <span class="text-primary">Développement du site</span>
-                        </div>
-                        <div class="progress-percentage">
-                            <span>5%</span>
-                        </div>
-                    </div>
-                <div class="progress">
-                    <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                </div>
-            </div>
-	    </div>
+            
+        </div>
+    </div>
         <div class="modal fade" id="modal-default" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
@@ -201,7 +202,15 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fas fa-address-book"></i></span>
                                     </div>
-                                    <input type="text" class="form-control" name="username" placeholder="Nom d'utilisateur" value="<?php if(isset($username)){echo $username;}?>" required>
+                                    <input type="text" class="form-control" name="nom" placeholder="Nom" value="<?php if(isset($nom)){echo $nom;}?>" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-address-book"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" name="prenom" placeholder="Prénom" value="<?php if(isset($prenom)){echo $prenom;}?>" required>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -210,17 +219,6 @@
                                         <span class="input-group-text"><i class="fas fa-at"></i></span>
                                     </div>
                                     <input type="email" class="form-control" name="email" placeholder="Email" value="<?php if(isset($mail)){echo $mail;}?>" required>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-venus-mars"></i></span>
-                                    </div>
-                                    <select name="genre" class="form-control">
-                                        <option value="Homme" name="Homme">Homme</option> 
-                                        <option value="Femme" name="Femme">Femme</option>     
-                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -239,7 +237,8 @@
                                     <input type="password" class="form-control" name="cpassword" placeholder="Confirmez votre mot de passe" required>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-lg btn-block" name="forminscription">S'inscrire</button>
+                            <button type="submit" class="btn btn-primary btn-lg btn-block" name="forminscription">Etape 2</button>
+                            <div class="form-check round-check mb-3"><label class="form-check-label" required><input class="form-check-input" type="checkbox" required> <span class="form-check-sign" required></span>Je certifie avoir pris connaissance des conditions générales des ventes aux enchères.</label></div>
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -248,6 +247,7 @@
                 </div>
             </div>
         </div>
+        
     </div>
 
 </body>

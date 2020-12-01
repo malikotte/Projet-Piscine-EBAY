@@ -1,0 +1,50 @@
+body{
+    background: #f1f1f1;  /* fallback for old browsers */
+}
+.input100{
+    width: 400px;
+    height: 60px;
+}
+.loginform{
+    position: relative;
+    top:10vh;
+    width:500px;
+    height: 450px;
+    background: #f1f1f1;
+    padding-top: 80px;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+.hide{
+    display: none;
+}
+
+h1{
+    text-align: center;
+}
+.formulaire{
+    position: absolute;
+    top:200px;
+}
+
+.bouton{
+    padding: 15px;
+    margin-right: auto;
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+.typewriter {
+  overflow: hidden; /* Ensures the content is not revealed until the animation */
+  border-right: none; /* The typwriter cursor */
+  white-space: nowrap; /* Keeps the content on a single line */
+  margin: 8px auto; /* Gives that scrolling effect as the typing happens */
+  letter-spacing: .15em; /* Adjust as needed */
+  animation: 
+    typing 3.5s steps(40, end),
+    blink-caret .75s step-end infinite;
+}
+

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>TP 3</title>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <!-- bootstrap -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+    <!-- Axios -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
+  <body onload="start()">
+    <div
+      class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm"
+    >
+      <h5 class="my-0 mr-md-auto font-weight-normal">METEO PREDICTION TP3</h5>
+    </div>
+
+    <div class="px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+      <h2 class="display-4">Méteo App</h2>
+      <p class="lead">
+        Application de prédiction méteo
+      </p>
+    </div>
+
+    <div class="container">
+      <div class="input-group mb-5 offset-4 col-4">
+        <input id="city-input" type="text" class="form-control" placeholder="Rentrer le nom d'une ville">
+        <div class="input-group-append">
+          <button id="city-input-button" class="btn btn-success" type="submit" onclick="recup()">Actualiser</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+        <div class="card-deck mb-3 text-center">
+          <div class="card mb-4 shadow-sm offset-sm-1">
+            <div class="card-header">
+              <h4 class="my-0 font-weight-normal">Aujourd'hui</h4>
+            </div>
+            <div class="card-body">
+              <h2 id="today-forecast-main" class="card-title">
+              </h2>
+              <div>
+                <p id="today-forecast-more-info"></p>
+                <div id="icon-weather-container" ></div>
+                <h3 id="today-forecast-temp"> </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    <div class="container">
+      <div class="card-deck mb-3 text-center">
+        <div class="card mb-4 shadow-sm offset-sm-1">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Demain</h4>
+          </div>
+          <div class="card-body">
+            <h2 id="today-forecast-main-d1" class="card-title">
+            </h2>
+            <div>
+              <p id="today-forecast-more-info-d1"></p>
+              <div id="icon-weather-container-d1" ></div>
+              <h3 id="today-forecast-temp-d1"> </h3>
+            </div>
+
+          </div>
+        </div>
+        <div class="card mb-4 shadow-sm offset-sm-1">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Après demain</h4>
+          </div>
+          <div class="card-body">
+            <h2 id="today-forecast-main-d2" class="card-title">
+            </h2>
+            <div>
+              <p id="today-forecast-more-info-d2"></p>
+              <div id="icon-weather-container-d2" ></div>
+              <h3 id="today-forecast-temp-d2"> </h3>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4 shadow-sm offset-sm-1">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Encore après demain</h4>
+          </div>
+          <div class="card-body">
+            <h2 id="today-forecast-main-d3" class="card-title">
+            </h2>
+            <div>
+              <p id="today-forecast-more-info-d3"></p>
+              <div id="icon-weather-container-d3" ></div>
+              <h3 id="today-forecast-temp-d3"> </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="js/API_Weather.js"></script>
+    <script src="js/script.js"></script>
+  </body>
+</html>
